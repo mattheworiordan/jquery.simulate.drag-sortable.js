@@ -1,0 +1,60 @@
+<html>
+  <head>
+    <title>jquery.simulate.drag-sortable.js tests</title>
+    <script src="vendor/jquery-1.6.2.min.js" language="Javascript" type="text/javascript"></script>
+    <script src="vendor/jquery-ui-1.8.16.custom.min.js" language="Javascript" type="text/javascript"></script>
+    <script src="vendor/qunit.js" language="Javascript" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="vendor/qunit.css" />
+    <script src="../jquery.simulate.drag-sortable.js" language="Javascript" type="text/javascript"></script>
+    <script src="tests.js" language="Javascript" type="text/javascript"></script>
+    <style type="text/css">
+      .handle {
+        width: 100px;
+        height: 20px;
+        background-color: '#000';
+      }
+      .custom-place-holder {
+        height: 40px;
+        background-color: '#F00';
+      }
+      .short {
+        height: 20px;
+      }
+      .tall {
+        height: 100px;
+      }
+    </style>
+  </head>
+</html>
+
+<body>
+  <h1 id="qunit-header">jquery.simulate.drag-sortable.js tests</h1>
+  <h2 id="qunit-banner"></h2>
+  <div id="qunit-testrunner-toolbar"></div>
+  <h2 id="qunit-userAgent"></h2>
+  <ol id="qunit-tests"></ol>
+  <div id="qunit-fixture">
+    <ul id="sortable">
+      <li id="elem1" class="short">
+        Element 1
+        <div class="handle"></div>
+      </li>
+      <li id="elem2" class="tall">
+        Element 2
+        <div class="handle"></div>
+      </li>
+      <li id="elem3" class="tall">
+        Element 3
+        <div class="handle"></div>
+      </li>
+      <li id="elem4" class="short">
+        Element 4
+        <div class="handle"></div>
+      </li>
+      <li id="elem5" class="tall">
+        Element 5
+        <div class="handle"></div>
+      </li>
+    </ul>
+  </div>
+</body>
