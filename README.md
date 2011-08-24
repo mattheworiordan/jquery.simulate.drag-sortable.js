@@ -1,12 +1,12 @@
 Simulate Drag on JQuery UI Sortable
 ================================
 
-Whilst [jquery.simulate.js](https://github.com/eduardolundgren/jquery-simulate) exists for
-simulating many JQuery and JQuery UI event, it is unable to simulate a JQuery UI Sortable
-widget due to intricate behaviour needed to make this work.
+Whilst [jquery.simulate.js](https://github.com/eduardolundgren/jquery-simulate) provides functionality
+to simulate many JQuery and JQuery UI event, it is unable to simulate a drag event for a JQuery UI Sortable
+widget due to the intricate behaviour needed to make the JQuery UI Sortable widget fire the correct events.
 
-This library allows you to simulate Drag events for a [JQuery UI Sortable](http://jqueryui.com/demos/sortable/), primarily for use when doing
-integration testing.
+This library allows you to simulate Drag events for a [JQuery UI Sortable](http://jqueryui.com/demos/sortable/), which I have found
+most useful when doing thorough integration tests.
 
 Features
 ---
