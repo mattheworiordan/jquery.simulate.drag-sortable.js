@@ -48,8 +48,6 @@
         if (!firstSibling) { firstSibling = sibling }; // need to know height when using placeHolder
       }
 
-      $(handle).css('border', '1px solid green');
-      $(that).css('border', '1px solid red');
       var center = findCenter(handle);
       var x = Math.floor(center.x), y = Math.floor(center.y);
       dispatchEvent(handle, 'mousedown', createEvent('mousedown', handle, { clientX: x, clientY: y }));
