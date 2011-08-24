@@ -23,7 +23,6 @@
           listItem = opts.listItem,
           placeHolder = opts.placeHolder,
           sibling = $(this),
-          firstSibling,
           moveCounter = Math.floor(opts.move),
           direction = moveCounter > 0 ? 'down' : 'up',
           moveVerticalAmount = 0,
@@ -45,7 +44,6 @@
           }
           moveCounter += 1;
         }
-        if (!firstSibling) { firstSibling = sibling }; // need to know height when using placeHolder
       }
 
       var center = findCenter(handle);
@@ -58,8 +56,8 @@
       placeHolder = placeHolder && $(this).parent().find(placeHolder);
       if (placeHolder && placeHolder.length) {
         if (direction === 'down') {
-          // as we're using a place holder, item beneath jumps up by it's own height - height of placeHolder
-          moveVerticalAmount += Math.min(placeHolder.outerHeight() / 2, 10);
+          // we're going to move past it, and back again
+          moveVerticalAmount -= Math.min($(this).outerHeight() / 2, 5);
           // Sortable UI bug when dragging down and place holder exists.  You need to drag past by the total height of this
           //  and then drag back to the right point
           dragPastBy = $(this).outerHeight();
@@ -74,7 +72,7 @@
           moveVerticalAmount += $(sibling).outerHeight() / 2;
         } else {
           // move a little extra to ensure item clips into next position
-          moveVerticalAmount -= Math.min($(this).outerHeight() / 2, 10);
+          moveVerticalAmount -= Math.min($(this).outerHeight() / 2, 5);
         }
       }
 
