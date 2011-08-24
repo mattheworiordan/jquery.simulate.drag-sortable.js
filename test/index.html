@@ -11,17 +11,21 @@
       .handle {
         width: 100px;
         height: 20px;
-        background-color: '#000';
+        background-color: #000;
+        float: right;
       }
       .custom-place-holder {
         height: 40px;
-        background-color: '#F00';
+        background-color: #F00;
       }
       .short {
         height: 20px;
       }
       .tall {
         height: 100px;
+      }
+      #sortable li {
+        border: 1px solid #CCC;
       }
     </style>
   </head>
@@ -35,19 +39,19 @@
   <ol id="qunit-tests"></ol>
   <div id="qunit-fixture">
     <ul id="sortable">
-      <li id="elem1" class="short">
+      <li id="elem1" class="short draggable">
         Element 1
         <div class="handle"></div>
       </li>
-      <li id="elem2" class="tall">
+      <li id="elem2" class="tall draggable">
         Element 2
         <div class="handle"></div>
       </li>
-      <li id="elem3" class="tall">
+      <li id="elem3" class="tall draggable">
         Element 3
         <div class="handle"></div>
       </li>
-      <li id="elem4" class="short">
+      <li id="elem4" class="short draggable">
         Element 4
         <div class="handle"></div>
       </li>
