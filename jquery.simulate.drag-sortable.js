@@ -55,13 +55,11 @@
       // Sortable is using a fixed height placeholder meaning items jump up and down as you drag variable height items into fixed height placeholder
       placeHolder = placeHolder && $(this).parent().find(placeHolder);
       if (placeHolder && placeHolder.length) {
-        if (direction === 'down') {
-          // we're going to move past it, and back again
-          moveVerticalAmount -= Math.min($(this).outerHeight() / 2, 5);
-          // Sortable UI bug when dragging down and place holder exists.  You need to drag past by the total height of this
-          //  and then drag back to the right point
-          dragPastBy = $(this).outerHeight();
-        }
+        // we're going to move past it, and back again
+        moveVerticalAmount += (direction === 'down' ? -1 : 1) * Math.min($(this).outerHeight() / 2, 5);
+        // Sortable UI bug when dragging down and place holder exists.  You need to drag past by the total height of this
+        //  and then drag back to the right point
+        dragPastBy = (direction === 'down' ? 1 : -1) * $(this).outerHeight();
       } else {
         // no place holder
         if (direction === 'down') {
