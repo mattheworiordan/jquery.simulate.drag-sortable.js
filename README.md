@@ -33,10 +33,10 @@ Include jquery.simulate.drag-sortable.js file after JQuery has been included.
     $('#itemToDrag').simulateDragSortable({ move: 1, listItem: '.draggable });
 
     // drag item up one position in the list using the handle .handle
-    $('#itemToDrag').simulateDragSortable({ move: 1, handle: '.handle });
+    $('#itemToDrag').simulateDragSortable({ move: -1, handle: '.handle });
 
     // drag item up two positions in the list with support for a place holder
-    $('#itemToDrag').simulateDragSortable({ move: 1, placeHolder: '.custom-place-holder' });
+    $('#itemToDrag').simulateDragSortable({ move: -2, placeHolder: '.custom-place-holder' });
 
 Repository and forking
 -----
