@@ -59,7 +59,7 @@
         moveVerticalAmount += (direction === 'down' ? -1 : 1) * Math.min($(this).outerHeight() / 2, 5);
         // Sortable UI bug when dragging down and place holder exists.  You need to drag past by the total height of this
         //  and then drag back to the right point
-        dragPastBy = (direction === 'down' ? 1 : -1) * $(this).outerHeight();
+        dragPastBy = (direction === 'down' ? 1 : -1) * $(this).outerHeight() / 2;
       } else {
         // no place holder
         if (direction === 'down') {
