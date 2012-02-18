@@ -9,7 +9,7 @@
    * - handle: selector for the draggable handle element (optional)
    * - listItem: selector to limit which sibling items can be used for reordering
    * - placeHolder: if a placeholder is used during dragging, we need to consider it's height
-   * - tolerance: 'intersect' if draggable must overlap the droppable at least 50%, otherwise 'pointer'
+   * - tolerance: (optional) number of pixels to overlap by instead of the default 50% of the element height
    *
    */
   $.fn.simulateDragSortable = function(options) {
@@ -27,7 +27,7 @@
           moveCounter = Math.floor(opts.move),
           direction = moveCounter > 0 ? 'down' : 'up',
           moveVerticalAmount = 0,
-          extraDrag = (opts.tolerance === 'intersect') ? $(this).outerHeight() / 2 : 1,
+          extraDrag = !isNaN(parseInt(opts.tolerance)) ? function() { return Number(opts.tolerance); } : function(obj) { return $(obj).outerHeight() / 2; },
           dragPastBy = 0;
 
       if (moveCounter === 0) { return; }
@@ -53,16 +53,16 @@
       dispatchEvent(handle, 'mousedown', createEvent('mousedown', handle, { clientX: x, clientY: y }));
       // simulate drag start
       dispatchEvent(document, 'mousemove', createEvent('mousemove', document, { clientX: x+1, clientY: y+1 }));
-      
+
       // Sortable is using a fixed height placeholder meaning items jump up and down as you drag variable height items into fixed height placeholder
       placeHolder = placeHolder && $(this).parent().find(placeHolder);
 
       if (placeHolder && placeHolder.length) {
         // we're going to move past it, and back again
-        moveVerticalAmount += (direction === 'down' ? -1 : 1) * Math.min(extraDrag, 5);
+        moveVerticalAmount += (direction === 'down' ? -1 : 1) * Math.min(extraDrag(this), 5);
         // Sortable UI bug when dragging down and place holder exists.  You need to drag past by the total height of this
         //  and then drag back to the right point
-        dragPastBy = (direction === 'down' ? 1 : -1) * extraDrag;
+        dragPastBy = (direction === 'down' ? 1 : -1) * extraDrag(this);
       } else {
         // no place holder
         if (direction === 'down') {
@@ -70,10 +70,10 @@
           if ($(this).outerHeight() > $(sibling).outerHeight()) {
             moveVerticalAmount += $(this).outerHeight() - $(sibling).outerHeight();
           }
-          moveVerticalAmount += extraDrag;
+          moveVerticalAmount += extraDrag(sibling);
         } else {
           // move a little extra to ensure item clips into next position
-          moveVerticalAmount -= Math.min(extraDrag, 5);
+          moveVerticalAmount -= Math.min(extraDrag(this), 5);
         }
       }
 
@@ -161,7 +161,6 @@
   // plugin defaults
   //
   $.fn.simulateDragSortable.defaults = {
-    move: 0,
-    tolerance: 'intersect'
+    move: 0
   };
 })(jQuery);
