@@ -6,6 +6,7 @@
    *
    * options are:
    * - move: move item up (positive) or down (negative) by Integer amount
+   * - dropOn: move item to a new linked list, move option now represents position in the new list (zero indexed)
    * - handle: selector for the draggable handle element (optional)
    * - listItem: selector to limit which sibling items can be used for reordering
    * - placeHolder: if a placeholder is used during dragging, we need to consider it's height
@@ -16,46 +17,97 @@
     // build main options before element iteration
     var opts = $.extend({}, $.fn.simulateDragSortable.defaults, options);
 
-    // iterate and move each matched element
-    return this.each(function() {
+    applyDrag = function(options) {
       // allow for a drag handle if item is not draggable
       var that = this,
-          handle = opts.handle ? $(this).find(opts.handle)[0] : $(this)[0],
-          listItem = opts.listItem,
-          placeHolder = opts.placeHolder,
+          options = options || opts, // default to plugin opts unless options explicitly provided
+          handle = options.handle ? $(this).find(options.handle)[0] : $(this)[0],
+          listItem = options.listItem,
+          placeHolder = options.placeHolder,
           sibling = $(this),
-          moveCounter = Math.floor(opts.move),
+          moveCounter = Math.floor(options.move),
           direction = moveCounter > 0 ? 'down' : 'up',
           moveVerticalAmount = 0,
-          extraDrag = !isNaN(parseInt(opts.tolerance)) ? function() { return Number(opts.tolerance); } : function(obj) { return $(obj).outerHeight() / 2; },
-          dragPastBy = 0;
+          initialVerticalPosition = 0,
+          extraDrag = !isNaN(parseInt(options.tolerance, 10)) ? function() { return Number(options.tolerance); } : function(obj) { return ($(obj).outerHeight() / 2) + 5; },
+          dragPastBy = 0, // represents the additional amount one drags past an element and bounce back
+          dropOn = options.dropOn ? $(options.dropOn) : false,
+          center = findCenter(handle),
+          x = Math.floor(center.x),
+          y = Math.floor(center.y),
+          mouseUpAfter = (opts.debug ? 2500 : 10);
 
-      if (moveCounter === 0) { return; }
-
-      while (moveCounter !== 0) {
-        if (direction === 'down') {
-          if (sibling.next(listItem).length) {
-            sibling = sibling.next(listItem);
-            moveVerticalAmount += sibling.outerHeight();
-          }
-          moveCounter -= 1;
+      if (dropOn) {
+        if (dropOn.length === 0) {
+          if (console && console.log) { console.log('simulate.drag-sortable.js ERROR: Drop on target could not be found'); console.log(options.dropOn); }
+          return;
+        }
+        sibling = dropOn.find('>*:last');
+        moveCounter = -(dropOn.find('>*').length + 1) + (moveCounter + 1); // calculate length of list after this move, use moveCounter as a positive index position in list to reverse back up
+        if (dropOn.offset().top - $(this).offset().top < 0) {
+          // moving to a list above this list, so move to just above top of last item (tried moving to top but JQuery UI wouldn't bite)
+          initialVerticalPosition = sibling.offset().top - $(this).offset().top - extraDrag(this);
         } else {
-          if (sibling.prev(listItem).length) {
-            sibling = sibling.prev(listItem);
-            moveVerticalAmount -= sibling.outerHeight();
+          // moving to a list below this list, so move to bottom and work up (JQuery UI does not trigger new list below unless you move past top item first)
+          initialVerticalPosition = sibling.offset().top - $(this).offset().top - $(this).height();
+        }
+      } else if (moveCounter === 0) {
+        if (console && console.log) { console.log('simulate.drag-sortable.js WARNING: Drag with move set to zero has no effect'); }
+        return;
+
+      } else {
+        while (moveCounter !== 0) {
+          if (direction === 'down') {
+            if (sibling.next(listItem).length) {
+              sibling = sibling.next(listItem);
+              moveVerticalAmount += sibling.outerHeight();
+            }
+            moveCounter -= 1;
+          } else {
+            if (sibling.prev(listItem).length) {
+              sibling = sibling.prev(listItem);
+              moveVerticalAmount -= sibling.outerHeight();
+            }
+            moveCounter += 1;
           }
-          moveCounter += 1;
         }
       }
 
-      var center = findCenter(handle);
-      var x = Math.floor(center.x), y = Math.floor(center.y);
       dispatchEvent(handle, 'mousedown', createEvent('mousedown', handle, { clientX: x, clientY: y }));
       // simulate drag start
       dispatchEvent(document, 'mousemove', createEvent('mousemove', document, { clientX: x+1, clientY: y+1 }));
 
+      if (dropOn) {
+        // jump to top or bottom of new list but do it in increments so that JQuery UI registers the drag events
+        slideUpTo(x, y, initialVerticalPosition);
+
+        // reset y position to top or bottom of list and move from there
+        y += initialVerticalPosition;
+
+        // now call regular shift/down in a list
+        options = jQuery.extend(options, { move: moveCounter });
+        delete options.dropOn;
+
+        // add some delays to allow JQuery UI to catch up
+        setTimeout(function() {
+          dispatchEvent(document, 'mousemove', createEvent('mousemove', document, { clientX: x, clientY: y }));
+        }, 5);
+        setTimeout(function() {
+          dispatchEvent(handle, 'mouseup', createEvent('mouseup', handle, { clientX: x, clientY: y }));
+          setTimeout(function() {
+            if (options.move) {
+              applyDrag.call(that, options);
+            }
+          }, 5);
+        }, mouseUpAfter);
+
+        // stop execution as applyDrag has been called again
+        return;
+      }
+
       // Sortable is using a fixed height placeholder meaning items jump up and down as you drag variable height items into fixed height placeholder
       placeHolder = placeHolder && $(this).parent().find(placeHolder);
+
 
       if (placeHolder && placeHolder.length) {
         // we're going to move past it, and back again
@@ -71,6 +123,7 @@
             moveVerticalAmount += $(this).outerHeight() - $(sibling).outerHeight();
           }
           moveVerticalAmount += extraDrag(sibling);
+          dragPastBy = extraDrag(sibling);
         } else {
           // move a little extra to ensure item clips into next position
           moveVerticalAmount -= Math.max(extraDrag(this), 5);
@@ -79,15 +132,10 @@
 
       if (sibling[0] !== $(this)[0]) {
         // step through so that the UI controller can determine when to show the placeHolder
-        var targetOffset = moveVerticalAmount + dragPastBy;
-        for (var offset = 0; Math.abs(offset) < Math.abs(targetOffset); offset += (direction === 'down' ? 10 : -10)) {
-          // drag move
-          dispatchEvent(document, 'mousemove', createEvent('mousemove', document, { clientX: x, clientY: y + offset }));
-        }
-        dispatchEvent(document, 'mousemove', createEvent('mousemove', document, { clientX: x, clientY: y + targetOffset }));
+        slideUpTo(x, y, moveVerticalAmount, dragPastBy);
       } else {
         if (window.console) {
-          console.log('Could not move as at top or bottom already');
+          console.log('simulate.drag-sortable.js WARNING: Could not move as at top or bottom already');
         }
       }
 
@@ -96,9 +144,33 @@
       }, 5);
       setTimeout(function() {
         dispatchEvent(handle, 'mouseup', createEvent('mouseup', handle, { clientX: x, clientY: y + moveVerticalAmount }));
-      }, 10);
-    });
+      }, mouseUpAfter);
+    };
+
+    // iterate and move each matched element
+    return this.each(applyDrag);
   };
+
+  // fire mouse events, go half way, then the next half, so small mouse movements near target and big at the start
+  function slideUpTo(x, y, targetOffset, goPastBy) {
+    var moveBy, offset;
+
+    if (!goPastBy) { goPastBy = 0; }
+    if ((targetOffset < 0) && (goPastBy > 0)) { goPastBy = -goPastBy; } // ensure go past is in the direction as often passed in from object height so always positive
+
+    // go forwards including goPastBy
+    for (offset = 0; Math.abs(offset) + 1 < Math.abs(targetOffset + goPastBy); offset += ((targetOffset + goPastBy - offset)/2) ) {
+      dispatchEvent(document, 'mousemove', createEvent('mousemove', document, { clientX: x, clientY: y + Math.ceil(offset) }));
+    }
+    offset = targetOffset + goPastBy;
+    dispatchEvent(document, 'mousemove', createEvent('mousemove', document, { clientX: x, clientY: y + offset }));
+
+    // now bounce back
+    for (; Math.abs(offset) - 1 >= Math.abs(targetOffset); offset += ((targetOffset - offset)/2) ) {
+      dispatchEvent(document, 'mousemove', createEvent('mousemove', document, { clientX: x, clientY: y + Math.ceil(offset) }));
+    }
+    dispatchEvent(document, 'mousemove', createEvent('mousemove', document, { clientX: x, clientY: y + targetOffset }));
+  }
 
   function createEvent(type, target, options) {
     var evt;
@@ -150,10 +222,11 @@
   }
 
   function findCenter(el) {
-    var el = $(el), o = el.offset();
+    var elm = $(el),
+        o = elm.offset();
     return {
-      x: o.left + el.outerWidth() / 2,
-      y: o.top + el.outerHeight() / 2
+      x: o.left + elm.outerWidth() / 2,
+      y: o.top + elm.outerHeight() / 2
     };
   }
 

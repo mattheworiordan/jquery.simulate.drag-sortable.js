@@ -24,7 +24,7 @@ function testAsyncStepsWithPause(pause) {
       start();
       var params = [pause].concat(Array.prototype.slice.call(args, 2));
       testAsyncStepsWithPause.apply(this, params);
-    }, pause)
+    }, pause);
   }
 }
 
@@ -229,6 +229,88 @@ $(document).ready(function() {
         return function() {
           equal( $('#elem1')[0], $('#sortable li:nth-child(2)')[0], "Element one should have shifted back to position two" );
         }
+      }
+    );
+  });
+
+  module("Dragging between lists");
+
+  test ("drag into fixed position in a list below this list", function() {
+    $('#sortable').sortable({
+      connectWith: '#sortable-bottom'
+    });
+    $('#sortable-bottom').sortable({
+      connectWith: '#sortable'
+    });
+    testAsyncStepsWithPause(200,
+      function() {
+        $('#elem1').simulateDragSortable({ move: 0, dropOn: 'ul#sortable-bottom' });
+        return function() {
+          equal( $('#elem1')[0], $('ul#sortable-bottom li:nth-child(1)')[0], "Element one should be in position 1 in bottom list" );
+          equal( $('#elem2')[0], $('ul#sortable li:nth-child(1)')[0], "Element two should now have moved to the top of top list" );
+          equal( $('#elemb1')[0], $('ul#sortable-bottom li:nth-child(2)')[0], "Element B one should be in position 2 in bottom list" );
+          equal( $('#sortable li').length, 4, "Top list should now have 1 less item and have 4 li items" );
+          equal( $('#sortable-bottom li').length, 4, "Bottom list should now have 1 more item and have 4 li items" );
+        };
+      },
+      function() {
+        $('#elem3').simulateDragSortable({ move: 4, dropOn: 'ul#sortable-bottom' });
+        return function() {
+          equal( $('#elem3')[0], $('ul#sortable-bottom li:nth-child(5)')[0], "Element three should be in position 5 (last) in bottom list" );
+          equal( $('#elem4')[0], $('ul#sortable li:nth-child(2)')[0], "Element four should now have moved to position two of top list" );
+          equal( $('#elemb1')[0], $('ul#sortable-bottom li:nth-child(2)')[0], "Element B one should be in position 2 in bottom list" );
+          equal( $('#sortable li').length, 3, "Top list should now have 1 less item and have 3 li items" );
+          equal( $('#sortable-bottom li').length, 5, "Bottom list should now have 1 more item and have 5 li items" );
+        };
+      },
+      function() {
+        $('#elem5').simulateDragSortable({ move: 1, dropOn: 'ul#sortable-bottom' });
+        return function() {
+          equal( $('#elem5')[0], $('ul#sortable-bottom li:nth-child(2)')[0], "Element five should be in position 2 in bottom list" );
+          equal( $('#sortable li').length, 2, "Top list should now have 1 less item and have 2 li items" );
+          equal( $('#sortable-bottom li').length, 6, "Bottom list should now have 1 more item and have 6 li items" );
+        };
+      }
+    );
+  });
+
+  test ("drag into fixed position in a list above this list", function() {
+    $('#sortable').sortable({
+      connectWith: '#sortable-bottom'
+    });
+    $('#sortable-bottom').sortable({
+      connectWith: '#sortable'
+    });
+    testAsyncStepsWithPause(200,
+      function() {
+        $('#elemb1').simulateDragSortable({ move: 0, dropOn: 'ul#sortable' });
+        return function() {
+          equal( $('#elemb1')[0], $('ul#sortable li:nth-child(1)')[0], "Element B one should be in position 1 in top list" );
+          equal( $('#elemb2')[0], $('ul#sortable-bottom li:nth-child(1)')[0], "Element B two should now have moved to the top of bottom list" );
+          equal( $('#elem1')[0], $('ul#sortable li:nth-child(2)')[0], "Element one should be in position 2 in top list" );
+          equal( $('#sortable li').length, 6, "Top list should now have 1 more item and have 6 li items" );
+          equal( $('#sortable-bottom li').length, 2, "Bottom list should now have 1 less item and have 2 li items" );
+        };
+      },
+      function() {
+        $('#elemb2').simulateDragSortable({ move: 6, dropOn: 'ul#sortable' });
+        return function() {
+          equal( $('#elemb2')[0], $('ul#sortable li:nth-child(7)')[0], "Element B two should be in position 7 (last) in top list" );
+          equal( $('#elemb3')[0], $('ul#sortable-bottom li:nth-child(1)')[0], "Element B three should now have moved to position one of bottom list" );
+          equal( $('#elemb1')[0], $('ul#sortable li:nth-child(1)')[0], "Element B one should still be in position 1 in top list" );
+          equal( $('#sortable li').length, 7, "Top list should now have 1 more item and have 7 li items" );
+          equal( $('#sortable-bottom li').length, 1, "Bottom list should now have 1 less item and have 1 li item" );
+        };
+      },
+      function() {
+        $('#elemb3').simulateDragSortable({ move: 1, dropOn: 'ul#sortable' });
+        return function() {
+          equal( $('#elemb3')[0], $('ul#sortable li:nth-child(2)')[0], "Element B three should be in position 2 in top list" );
+          equal( $('#elemb1')[0], $('ul#sortable li:nth-child(1)')[0], "Element B one should still be in position 1" );
+          equal( $('#elem1')[0], $('ul#sortable li:nth-child(3)')[0], "Element one should be in position 3 in top list" );
+          equal( $('#sortable li').length, 8, "Top list should now have 1 more item and have 8 li items" );
+          equal( $('#sortable-bottom li').length, 0, "Bottom list should now have 1 less item and have 0 li items" );
+        };
       }
     );
   });
