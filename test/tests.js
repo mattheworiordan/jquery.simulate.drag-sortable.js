@@ -23,7 +23,6 @@ function testAsyncStepsWithPause(pause) {
       asyncTestFunction();
       start();
       var params = [pause].concat(Array.prototype.slice.call(args, 2));
-      console.log(params);
       testAsyncStepsWithPause.apply(this, params);
     }, pause)
   }
