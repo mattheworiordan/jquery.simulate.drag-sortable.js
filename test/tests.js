@@ -314,4 +314,45 @@ $(document).ready(function() {
       }
     );
   });
+
+  test ("drag into positions when list has a placeholder", function() {
+    $('#sortable').sortable({
+      connectWith: '#sortable-bottom',
+      placeholder: 'custom-place-holder'
+    });
+    $('#sortable-bottom').sortable({
+      connectWith: '#sortable',
+      placeholder: 'custom-place-holder'
+    });
+    testAsyncStepsWithPause(200,
+      function() {
+        $('#elem1').simulateDragSortable({ move: 0, dropOn: 'ul#sortable-bottom', placeHolder: '.custom-place-holder' });
+        return function() {
+          equal( $('#elem1')[0], $('ul#sortable-bottom li:nth-child(1)')[0], "Element one should be in position 1 in bottom list" );
+          equal( $('#elem2')[0], $('ul#sortable li:nth-child(1)')[0], "Element two should now have moved to the top of top list" );
+          equal( $('#elemb1')[0], $('ul#sortable-bottom li:nth-child(2)')[0], "Element B one should be in position 2 in bottom list" );
+          equal( $('#sortable li').length, 4, "Top list should now have 1 less item and have 4 li items" );
+          equal( $('#sortable-bottom li').length, 4, "Bottom list should now have 1 more item and have 4 li items" );
+        };
+      },
+      function() {
+        $('#elem3').simulateDragSortable({ move: 4, dropOn: 'ul#sortable-bottom', placeHolder: '.custom-place-holder' });
+        return function() {
+          equal( $('#elem3')[0], $('ul#sortable-bottom li:nth-child(5)')[0], "Element three should be in position 5 (last) in bottom list" );
+          equal( $('#elem4')[0], $('ul#sortable li:nth-child(2)')[0], "Element four should now have moved to position two of top list" );
+          equal( $('#elemb1')[0], $('ul#sortable-bottom li:nth-child(2)')[0], "Element B one should be in position 2 in bottom list" );
+          equal( $('#sortable li').length, 3, "Top list should now have 1 less item and have 3 li items" );
+          equal( $('#sortable-bottom li').length, 5, "Bottom list should now have 1 more item and have 5 li items" );
+        };
+      },
+      function() {
+        $('#elem5').simulateDragSortable({ move: 1, dropOn: 'ul#sortable-bottom', placeHolder: '.custom-place-holder' });
+        return function() {
+          equal( $('#elem5')[0], $('ul#sortable-bottom li:nth-child(2)')[0], "Element five should be in position 2 in bottom list" );
+          equal( $('#sortable li').length, 2, "Top list should now have 1 less item and have 2 li items" );
+          equal( $('#sortable-bottom li').length, 6, "Bottom list should now have 1 more item and have 6 li items" );
+        };
+      }
+    );
+  });
 });
