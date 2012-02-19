@@ -11,7 +11,7 @@
       .handle {
         width: 100px;
         height: 20px;
-        background-color: #000;
+        background-color: rgba(255,0,0,0.5);
         float: right;
       }
       .custom-place-holder {
@@ -24,10 +24,27 @@
       .tall {
         height: 100px;
       }
-      #sortable li {
+      li {
         border: 1px solid #CCC;
+        background-color: rgba(255,255,255,0.5);
+      }
+      body {
+        font-family: Arial;
+        font-size: 11px;
       }
     </style>
+    <script type="text/javascript">
+      $(function() {
+        $('#example-top').sortable({
+          connectWith: '#example-bottom',
+          placeholder: 'custom-place-holder'
+        });
+        $('#example-bottom').sortable({
+          connectWith: '#example-top',
+          placeholder: 'custom-place-holder'
+        });
+      });
+    </script>
   </head>
 </html>
 
@@ -60,5 +77,45 @@
         <div class="handle"></div>
       </li>
     </ul>
+    <ul id="sortable-bottom">
+      <li id="elemb1" class="short draggable">
+        Element B 1
+        <div class="handle"></div>
+      </li>
+      <li id="elemb2" class="tall draggable">
+        Element B 2
+        <div class="handle"></div>
+      </li>
+      <li id="elemb3" class="tall draggable">
+        Element B 3
+        <div class="handle"></div>
+      </li>
+    </ul>
   </div>
+
+  <br/>
+  Linked example list
+  <ul id="example-top">
+    <li class="short">
+      Element 1
+    </li>
+    <li class="tall">
+      Element 2
+    </li>
+  </ul>
+  Linked example list
+  <ul id="example-bottom">
+    <li class="short">
+      Element 3
+    </li>
+    <li class="tall">
+      Element 4
+    </li>
+    <li class="short">
+      Element 5
+    </li>
+    <li class="tall">
+      Element 6
+    </li>
+  </ul>
 </body>
