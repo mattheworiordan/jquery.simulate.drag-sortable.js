@@ -73,7 +73,7 @@
           moveVerticalAmount += extraDrag(sibling);
         } else {
           // move a little extra to ensure item clips into next position
-          moveVerticalAmount -= Math.min(extraDrag(this), 5);
+          moveVerticalAmount -= Math.max(extraDrag(this), 5);
         }
       }
 

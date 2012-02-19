@@ -76,6 +76,26 @@ $(document).ready(function() {
     );
   });
 
+  test("drag up tall li above shallow li", function() {
+    $('#sortable').sortable();
+    testAsyncStepsWithPause(35,
+      function() {
+        $('#elem1.short').simulateDragSortable({ move: 1 }); // move down to position 2
+        return function() {
+          equal( $('#elem1')[0], $('#sortable li:nth-child(2)')[0], "Element one should now be in position two" );
+          equal( $('#elem2')[0], $('#sortable li:nth-child(1)')[0], "Element two should now be in position 1" );
+        };
+      },
+      function() {
+        $('#elem5').simulateDragSortable({ move: -3 }); // move elem 5 up 3 places to position 2
+        return function() {
+          equal( $('#elem1')[0], $('#sortable li:nth-child(3)')[0], "Element one should have shifted down to 3rd position" );
+          equal( $('#elem5')[0], $('#sortable li:nth-child(2)')[0], "Element five should be in position 2" );
+        };
+      }
+    );
+  });
+
   test("drag up to boundary", function() {
     $('#sortable').sortable();
     testAsyncStepsWithPause(35,
