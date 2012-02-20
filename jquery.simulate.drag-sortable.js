@@ -54,7 +54,6 @@
       } else if (moveCounter === 0) {
         if (console && console.log) { console.log('simulate.drag-sortable.js WARNING: Drag with move set to zero has no effect'); }
         return;
-
       } else {
         while (moveCounter !== 0) {
           if (direction === 'down') {
@@ -118,6 +117,13 @@
       } else if (direction === 'up') {
         // move a little extra to ensure item clips into next position
         moveVerticalAmount -= Math.max(extraDrag(this), 5);
+      } else if (direction === 'down') {
+        // moving down with a place holder
+        if (placeHolder.height() < $(this).height()) {
+          moveVerticalAmount += Math.max(placeHolder.height(), 5);
+        } else {
+          moveVerticalAmount += extraDrag(sibling);
+        }
       }
 
       if (sibling[0] !== $(this)[0]) {
